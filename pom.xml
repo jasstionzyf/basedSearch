@@ -7,12 +7,45 @@
     <groupId>com.comm</groupId>
     <artifactId>basedSearch</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <distributionManagement>
-
-
+        <!--<snapshotRepository>-->
+            <!--<id>Snapshots</id>-->
+            <!--<name>Snapshots</name>-->
+            <!--<url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/snapshots/</url>-->
+        <!--</snapshotRepository>-->
+        <!--<repository>-->
+            <!--<id>Releases</id>-->
+            <!--<name>Releases</name>-->
+            <!--<url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/releases/</url>-->
+        <!--</repository>-->
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>Snapshots</id>
+            <name>Snapshots</name>
+            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/snapshots/</url>
+        </repository>
 
+        <repository>
+            <id>Releases</id>
+            <name>Releases</name>
+            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/releases/</url>
+        </repository>
+
+        <repository>
+            <id>spring-snapshots</id>
+            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/spring-snapshots/</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+
+        <repository>
+            <id>spring-milestones</id>
+            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/spring-milestones/</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+
+    </repositories>
     <properties>
         <jedis.version>2.6.2</jedis.version>
 
@@ -33,7 +66,7 @@
         <dependency>
             <groupId>org.elasticsearch.plugin</groupId>
             <artifactId>lang-javascript</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
