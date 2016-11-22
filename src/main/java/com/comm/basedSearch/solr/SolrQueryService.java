@@ -4,10 +4,11 @@
  */
 package com.comm.basedSearch.solr;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import com.comm.basedSearch.entity.SolrCommonQuery;
+import com.comm.basedSearch.service.AbstractQueryService;
+import com.comm.basedSearch.service.QueryGenerator;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.http.client.HttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.CloudSolrServer;
@@ -18,11 +19,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
 
-import com.comm.basedSearch.entity.SolrCommonQuery;
-import com.comm.basedSearch.service.AbstractQueryService;
-import com.comm.basedSearch.service.QueryGenerator;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author jasstion
@@ -51,7 +50,7 @@ public class SolrQueryService extends AbstractQueryService<SolrCommonQuery> {
       cloudSolrServer.setZkConnectTimeout(zkConnectTimeout);
       cloudSolrServer.setZkClientTimeout(zkClientTimeout);
     } catch (Exception e) {
-
+      
     }
 
   }
@@ -60,7 +59,7 @@ public class SolrQueryService extends AbstractQueryService<SolrCommonQuery> {
   public List<Map<String, Object>> query(SolrCommonQuery query) throws Exception {
     List<Map<String, Object>> results = Lists.newArrayList();
 
-    QueryGenerator<SolrQuery, SolrCommonQuery> queryGenerator = new AdvancedSolrQueryGenerator();
+    QueryGenerator<SolrQuery, SolrCommonQuery> queryGenerator = new SolrQueryGenerator();
     SolrQuery solrQuery = queryGenerator.generateFinalQuery(query);
     LOGGER.debug("generted solr query:" + solrQuery.toString() + "");
 

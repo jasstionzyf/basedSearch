@@ -9,19 +9,13 @@ import com.comm.basedSearch.entity.EsCommonQuery;
 import com.comm.basedSearch.entity.QueryItem;
 import com.comm.basedSearch.entity.SortItem;
 import com.comm.basedSearch.entity.SubQuery;
-import com.comm.basedSearch.utils.Instances;
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.node.Node;
 import org.junit.*;
 
-import java.io.StringReader;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +24,6 @@ import java.util.Map;
  * @author jasstion
  */
 public class EsQueryServiceTest {
-    public static final NodeTestUtils   nodeTestUtils=new NodeTestUtils();
 
 
 
@@ -68,15 +61,16 @@ public class EsQueryServiceTest {
      */
     @Test
     public void testQuery() throws Exception {
-      Node node=  nodeTestUtils.createNode();
-        nodeTestUtils.releaseNode(node);
-        node=  nodeTestUtils.createNode();
+      Node node=  null;
+//      nodeTestUtils.createNode();
+//        nodeTestUtils.releaseNode(node);
+//        node=  nodeTestUtils.createNode();
 
         Client client=node.client();
         String indexName="com";
         String typeName="user";
 
-        Settings indexSettings = Settings.settingsBuilder()
+        Settings indexSettings = Settings.builder()
                 .put("index.similarity.payload.type", "payload_similarity")
                 .put("analysis.analyzer.payloads.type", "custom")
                 .put("analysis.analyzer.payloads.tokenizer", "whitespace")
@@ -120,7 +114,7 @@ public class EsQueryServiceTest {
                                 .field("userId",1)
                                 .endObject()
                 )
-                .setRefresh(true)
+
                 .execute().actionGet();
         client.prepareIndex(indexName, typeName, "2")
                 .setSource(XContentFactory.jsonBuilder().startObject()
@@ -130,7 +124,7 @@ public class EsQueryServiceTest {
                                 .field("userId",2)
                                 .endObject()
                 )
-                .setRefresh(true)
+
                 .execute().actionGet();
         client.prepareIndex(indexName, typeName, "3")
                 .setSource(XContentFactory.jsonBuilder().startObject()
@@ -140,7 +134,7 @@ public class EsQueryServiceTest {
                                 .field("userId",3)
                                 .endObject()
                 )
-                .setRefresh(true)
+
                 .execute().actionGet();
         client.prepareIndex(indexName, typeName, "5")
                 .setSource(XContentFactory.jsonBuilder().startObject()
@@ -150,7 +144,7 @@ public class EsQueryServiceTest {
                                 .field("userId",5)
                                 .endObject()
                 )
-                .setRefresh(true)
+
                 .execute().actionGet();
 
         client.prepareIndex(indexName, typeName, "4")
@@ -161,7 +155,6 @@ public class EsQueryServiceTest {
                                 .field("userId",4)
                                 .endObject()
                 )
-                .setRefresh(true)
                 .execute().actionGet();
 
 
@@ -196,7 +189,7 @@ public class EsQueryServiceTest {
         EsQueryGenerator.EsQueryWrapper esQueryWrapper= new EsQueryGenerator().generateFinalQuery(baiheQuery);
 
         System.out.print(esQueryWrapper.getSearchSourceBuilder().toString());
-        EsQueryService esQueryService = new EsQueryService(client);
+        EsQueryService esQueryService = new EsQueryService("localhost:9300");
         List<Map<String, Object>> results = esQueryService.query(baiheQuery);
         System.out.print(results.size()+"\n");
         for (Map<String,Object> user:results) {
@@ -209,7 +202,7 @@ public class EsQueryServiceTest {
 
 
 
-        nodeTestUtils.releaseNode(node);
+       // nodeTestUtils.releaseNode(node);
 
 
     }

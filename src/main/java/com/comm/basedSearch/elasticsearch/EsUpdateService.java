@@ -6,73 +6,51 @@
 package com.comm.basedSearch.elasticsearch;
 
 import com.comm.basedSearch.service.UpdateService;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import io.searchbox.client.JestClient;
-import io.searchbox.client.JestClientFactory;
-import io.searchbox.client.JestResult;
-import io.searchbox.client.config.HttpClientConfig;
-import io.searchbox.core.*;
-import org.slf4j.LoggerFactory;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
-import java.io.IOException;
+import java.net.InetAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author jasstion
  */
-public class EsUpdateService implements UpdateService {
-
-    final static ResourceBundle solrProperties = ResourceBundle.getBundle("elasticSearch");
-    protected final static org.slf4j.Logger mLog = LoggerFactory.getLogger(EsUpdateService.class);
+public class EsUpdateService extends EsService implements UpdateService {
 
 
-    /**
-     *
-     */
-    private static JestClient client = null;
-    private static void populateClient(String elasticSearchUrl) {
-        if (client == null) {
-            Set<String> servers= Sets.newHashSet();
-            String[] servers_str=elasticSearchUrl.split(",");
-            for (String server_str:servers_str){
-                servers.add(server_str);
-            }
 
 
-            HttpClientConfig clientConfig = new HttpClientConfig.Builder(servers).multiThreaded(true)
-                    .connTimeout(6*1000)
-                    .readTimeout(6*1000)
-                    .defaultMaxTotalConnectionPerRoute(1000)
-                    .build();
 
-            JestClientFactory factory = new JestClientFactory();
-            factory.setHttpClientConfig(clientConfig);
-            client = factory.getObject();
-        }
 
-    }
 
     /**
      *
      */
     public EsUpdateService() {
-        String elasticSearchUrl = solrProperties.getString("elasticSearchHosts");
-        populateClient(elasticSearchUrl);
+        super();
 
     }
 
     public EsUpdateService(String elasticSearchUrl){
-           populateClient(elasticSearchUrl);
+           super(elasticSearchUrl);
+
+    }
+    public EsUpdateService(String elasticHosts,String userName,String passwd,String clusterName){
+        super(elasticHosts,userName,passwd,clusterName);
 
     }
 
@@ -93,8 +71,8 @@ public class EsUpdateService implements UpdateService {
      * once failure throw exception must to be processed by caller
      */
     public void bulkUpdate(List<Map<String, String>> updatedMaps)throws Exception{
-        Bulk.Builder builder = new Bulk.Builder();
-        List<Update> updateList =Lists.newArrayList();
+
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
 
         for(Map<String, String> updateMap:updatedMaps){
             String id = (String) updateMap.get("id");
@@ -105,28 +83,24 @@ public class EsUpdateService implements UpdateService {
 
            }
 
-          //  String updateScript = generateEsUpdateScriptFromMap(updateMap);
-           // Update update = new Update.Builder(updateScript+"\n").index(index).type(type).id(id).build();
+
             Map<String,Object> finalUpdatedMap=Maps.newHashMap();
             finalUpdatedMap.put("doc",updateMap);
             finalUpdatedMap.put("doc_as_upsert","true");
-            Update update = new Update.Builder(finalUpdatedMap).index(index).type(type).id(id).build();
-            updateList.add(update);
+            IndexRequestBuilder requestBuilder=client.prepareIndex().setId(id).setSource(finalUpdatedMap).setIndex(index).setType(type);
+            bulkRequest.add(requestBuilder);
 
-        }
-
-
-
-        Bulk bulk = new Bulk.Builder()
-
-                .addAction(updateList)
-                .build();
-       // System.out.print(bulk.getURI());
 
 
 
-            JestResult jestResult=client.execute(bulk);
-            processJestResult(jestResult);
+        }
+        BulkResponse bulkResponse = bulkRequest.get();
+        processBulkRequest(bulkResponse);
+
+
+
+
+
 
 
 
@@ -139,46 +113,42 @@ public class EsUpdateService implements UpdateService {
      * @param updatedMaps
      */
     public void bulkAdd(List<Map<String, String>> updatedMaps)throws Exception{
-        Bulk.Builder builder = new Bulk.Builder();
-        List<Index> updateList =Lists.newArrayList();
 
+
+        BulkRequestBuilder bulkRequest = client.prepareBulk();
         for(Map<String, String> updateMap:updatedMaps){
             String id = (String) updateMap.get("id");
             String type = updateMap.get("type");
             String index = updateMap.get("index");
+           IndexRequestBuilder requestBuilder= client.prepareIndex().setId(id).setSource(updateMap).setIndex(index).setType(type);
+            bulkRequest.add(requestBuilder);
 
-            //
-//            updateMap.remove("index");
-//            updateMap.remove("type");
-            Index indexAction=null;
-            if(id!=null){
-               // updateMap.remove("id");
-                indexAction=new Index.Builder(updateMap).index(index).type(type).id(id).build();
-            }
-            else{
-                indexAction= new Index.Builder(updateMap).index(index).type(type).build();
-            }
-            updateList.add(indexAction);
+
+
 
         }
 
+        BulkResponse bulkResponse = bulkRequest.get();
+        processBulkRequest(bulkResponse);
 
 
-        Bulk bulk = new Bulk.Builder()
-
-                .addAction(updateList)
-                .build();
-        // System.out.print(bulk.getURI());
 
 
-            JestResult jestResult=client.execute(bulk);
-            processJestResult(jestResult);
+
+
 
 
 
 
     }
 
+    private void processBulkRequest(BulkResponse bulkResponse) throws Exception{
+        if (bulkResponse.hasFailures()) {
+            throw  new Exception(bulkResponse.toString());
+        }
+
+
+    }
     /**
      * used to update or save a document,  the input document must have id field, means the document's id
      * in elasticserch must be  manually specify.
@@ -196,15 +166,18 @@ public class EsUpdateService implements UpdateService {
         Map<String,Object> finalUpdatedMap=Maps.newHashMap();
         finalUpdatedMap.put("doc",updateMap);
         finalUpdatedMap.put("doc_as_upsert","true");
-        Update update = new Update.Builder(finalUpdatedMap).index(index).type(type).id(id).build();
+        client.prepareIndex().setId(id).setSource(finalUpdatedMap).setIndex(index).setType(type).execute(
+            new ActionListener<IndexResponse>() {
+                @Override public void onResponse(IndexResponse indexResponse) {
 
-        try {
-            JestResult jestResult=client.execute(update);
-            processJestResult(jestResult);
+                }
 
-        } catch (IOException ex) {
-            Logger.getLogger(EsUpdateService.class.getName()).log(Level.SEVERE, null, ex);
-        }
+                @Override public void onFailure(Exception e) {
+
+                }
+            });
+
+
 
     }
 
@@ -218,33 +191,21 @@ public class EsUpdateService implements UpdateService {
         String id = (String) updateMap.get("id");
         String type = updateMap.get("type");
         String index = updateMap.get("index");
+        client.prepareIndex().setId(id).setSource(updateMap).setIndex(index).setType(type).execute(
+            new ActionListener<IndexResponse>() {
+                @Override public void onResponse(IndexResponse indexResponse) {
 
-       //
-//        updateMap.remove("index");
-//        updateMap.remove("type");
-        Index indexAction=null;
-        if(id!=null){
-           // updateMap.remove("id");
-            indexAction=new Index.Builder(updateMap).index(index).type(type).id(id).build();
-        }
-        else{
-            indexAction= new Index.Builder(updateMap).index(index).type(type).build();
-        }
+                }
 
-        try {
-          JestResult jestResult= client.execute(indexAction);
-            processJestResult(jestResult);
+                @Override public void onFailure(Exception e) {
 
-        } catch (IOException ex) {
-            throw new RuntimeException("新增数据出错，错误信息："+ex.getMessage()+"");
-        }
+                }
+            });
+
+
     }
-    private void processJestResult(JestResult jestResult){
-        if(!jestResult.isSucceeded()){
-            throw new RuntimeException("数据操作出错，错误信息："+jestResult.getErrorMessage()+"");
 
-        }
-    }
+
     /**
      *
      * @param deletedMap
@@ -255,14 +216,17 @@ public class EsUpdateService implements UpdateService {
         String id = (String) deletedMap.get("id");
         String type = deletedMap.get("type");
         String index = deletedMap.get("index");
-        Delete deleteAction = new Delete.Builder(id).index(index).type(type).build();
-        try {
-            JestResult jestResult= client.execute(deleteAction);
-            processJestResult(jestResult);
+        client.prepareDelete(index,type,id).execute(new ActionListener<DeleteResponse>() {
+            @Override public void onResponse(DeleteResponse deleteResponse) {
 
-        } catch (IOException ex) {
-            throw new RuntimeException("删除数据出错，错误信息："+ex.getMessage()+"");
-        }
+            }
+
+            @Override public void onFailure(Exception e) {
+
+            }
+        });
+
+
 
     }
 
@@ -331,40 +295,40 @@ public class EsUpdateService implements UpdateService {
 //        String jsonInString = mapper.writeValueAsString(updatedMap);
 //        System.out.print(jsonInString);
         String elasticSearchUrl="http://172.16.9.42:9200,http://172.16.9.42:9201,http://172.16.9.42:9202,http://172.16.9.43:9200,http://172.16.9.43:9201,http://172.16.9.43:9202,http://172.16.9.44:9200,http://172.16.9.44:9201,http://172.16.9.44:9202,http://172.16.9.45:9200,http://172.16.9.45:9201,http://172.16.9.45:9202,http://172.16.9.46:9200,http://172.16.9.46:9201,http://172.16.9.46:9202";
-        JestClient client = null;
-        Set<String> servers= Sets.newHashSet();
-        String[] servers_str=elasticSearchUrl.split(",");
-        for (String server_str:servers_str){
-            servers.add(server_str);
-        }
-
-
-        HttpClientConfig clientConfig = new HttpClientConfig.Builder(servers).multiThreaded(true)
-                .connTimeout(6*1000)
-                .readTimeout(6*1000)
-                .defaultMaxTotalConnectionPerRoute(1000)
-                .defaultCredentials("zhaoyufei","zhaoyufei")
-                .build();
-
-        JestClientFactory factory = new JestClientFactory();
-        factory.setHttpClientConfig(clientConfig);
-        client = factory.getObject();
-
-        DeleteByQuery deleteAllUserJohn = new DeleteByQuery.Builder("\"query\" : {\n" +
-                "        \n" +
-                "    \"range\" : {\n" +
-                "        \"accept_date\" : {\n" +
-                "            \"lt\" :  \"now-7d/d\",\n" +
-                "            \"gte\": \"now-8d/d\"\n" +
-                "        }\n" +
-                "    \n" +
-                "}\n" +
-                "    }")
-                .addIndex("baihe")
-                .addType("ha")
-                .build();
-        JestResult jr=client.execute(deleteAllUserJohn);
-       System.out.print(jr.getErrorMessage());
+//        JestClient client = null;
+//        Set<String> servers= Sets.newHashSet();
+//        String[] servers_str=elasticSearchUrl.split(",");
+//        for (String server_str:servers_str){
+//            servers.add(server_str);
+//        }
+//
+//
+//        HttpClientConfig clientConfig = new HttpClientConfig.Builder(servers).multiThreaded(true)
+//                .connTimeout(6*1000)
+//                .readTimeout(6*1000)
+//                .defaultMaxTotalConnectionPerRoute(1000)
+//                .defaultCredentials("zhaoyufei","zhaoyufei")
+//                .build();
+//
+//        JestClientFactory factory = new JestClientFactory();
+//        factory.setHttpClientConfig(clientConfig);
+//        client = factory.getObject();
+//
+//        DeleteByQuery deleteAllUserJohn = new DeleteByQuery.Builder("\"query\" : {\n" +
+//                "        \n" +
+//                "    \"range\" : {\n" +
+//                "        \"accept_date\" : {\n" +
+//                "            \"lt\" :  \"now-7d/d\",\n" +
+//                "            \"gte\": \"now-8d/d\"\n" +
+//                "        }\n" +
+//                "    \n" +
+//                "}\n" +
+//                "    }")
+//                .addIndex("baihe")
+//                .addType("ha")
+//                .build();
+//        JestResult jr=client.execute(deleteAllUserJohn);
+//       System.out.print(jr.getErrorMessage());
 
 
 

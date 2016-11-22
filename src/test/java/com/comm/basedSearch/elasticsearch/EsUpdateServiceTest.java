@@ -19,7 +19,7 @@ import java.util.Map;
  * @author jasstion
  */
 public class EsUpdateServiceTest {
-    public static final NodeTestUtils   nodeTestUtils=new NodeTestUtils();
+   final static  UpdateService updaeService = new EsUpdateService("127.0.0.1:9300","elastic","changeme","elasticsearch");
 
     public EsUpdateServiceTest() {
     }
@@ -48,18 +48,17 @@ public class EsUpdateServiceTest {
      */
     @Test
     public void testUpdate() throws IOException {
-        String testId = "11111106";
+        String testId = "11111107";
         Map<String, String> updatedMap = Maps.newHashMap();
         updatedMap.put("age", "1920");
-        updatedMap.put("height", "1920");
+        updatedMap.put("height", "1921");
         updatedMap.put("nickname", "jasstion2");
         updatedMap.put("id", testId);
         updatedMap.put("userID", testId);
 
         updatedMap.put("type", "user");
-        updatedMap.put("index", "baihe_user");
-        UpdateService updaeService = new EsUpdateService();
-        //UpdateService updaeService = new EsUpdateService("http://120.131.7.145:9200/");
+        updatedMap.put("index", "demo_user");
+        //UpdateService updaeService = new EsUpdateService();
         String registeDate="2012-03-10T09:23:12";
         updatedMap.put("registeDate",registeDate);
 
@@ -89,8 +88,7 @@ public class EsUpdateServiceTest {
 
 
         updatedMap.put("type", "user");
-        updatedMap.put("index", "baihe_user");
-        UpdateService updaeService = new EsUpdateService();
+        updatedMap.put("index", "demo_user");
         String registeDate="2012-03-10T09:23:12";
         updatedMap.put("registeDate",registeDate);
 
@@ -128,8 +126,7 @@ public class EsUpdateServiceTest {
 
         updatedMap.put("id", testId);
         updatedMap.put("type", "user");
-        updatedMap.put("index", "baihe_user");
-        UpdateService updaeService = new EsUpdateService();
+        updatedMap.put("index", "demo_user");
 
 
 
@@ -155,33 +152,31 @@ public class EsUpdateServiceTest {
 
     }
     @Test
-    public void testBulkUpdate(){
-        EsUpdateService esUpdateService=new EsUpdateService("http://172.16.3.52:9200,http://172.16.3.42:9200,http://172.16.3.94:9200,http://172.16.4.140:9203,http://172.16.4.239:9200,http://172.16.4.238:9200,http://172.16.3.60:9200,http://172.16.3.20:9200");
+    public void testBulkUpdate()throws Exception{
         List<Map<String, String>> updatedMaps= Lists.newArrayList();
         Map<String, String> updatedMap = Maps.newHashMap();
         //updatedMap.put("nickname", "说好不哭11");
-        updatedMap.put("id","1111111191");
+        updatedMap.put("id","11111106");
 
         // updatedMap.put("height","1988");
-        String registeDate="2012-03-10T09:23:12";
+        String registeDate="2012-03-11T09:23:12";
         updatedMap.put("registeDate",registeDate);
         //TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
 
         updatedMap.put("type", "user");
-        updatedMap.put("index", "baihe_user");
+        updatedMap.put("index", "demo_user");
         Map<String, String> updatedMap1 = Maps.newHashMap();
-        updatedMap1.put("id","1111111110");
+        updatedMap1.put("id","11111107");
         updatedMap1.put("type", "user");
-        updatedMap1.put("index", "baihe_user");
+        updatedMap1.put("index", "demo_user");
 
         updatedMap1.put("nickname", "向阳花1111");
         updatedMap1.put("height","1988");
 
         updatedMaps.add(updatedMap);
         updatedMaps.add(updatedMap1);
-//        esUpdateService.update(updatedMap);
-        //  esUpdateService.bulkAdd(updatedMaps);
+      updaeService.bulkUpdate(updatedMaps);
        // esUpdateService.bulkUpdate(updatedMaps);
 
     }

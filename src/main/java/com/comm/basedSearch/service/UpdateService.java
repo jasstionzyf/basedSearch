@@ -5,6 +5,7 @@
  */
 package com.comm.basedSearch.service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,6 +16,8 @@ public interface UpdateService {
     public void update(Map<String, String> updateMap);
     public void add(Map<String, String> updateMap);
     public void delete(Map<String, String> updateMap);
+    public void bulkUpdate(List<Map<String, String>> updatedMaps)throws Exception;
+    public void bulkAdd(List<Map<String, String>> updatedMaps)throws Exception;
 
     
 }

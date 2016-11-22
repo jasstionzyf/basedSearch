@@ -18,6 +18,8 @@ import java.util.List;
  */
 public class CommonQuery extends AbstractQuery {
 
+    protected String queryStr=null;
+
     protected SubQuery subQuery=new SubQuery();
 
 
@@ -65,12 +67,13 @@ public class CommonQuery extends AbstractQuery {
     @Override
     public String toString() {
         return "CommonQuery{" +
-                "distance=" + distance +
-                ", subQuery=" + subQuery +
-                ", queryItems=" + queryItems +
-                ", functionQuerysList=" + functionQuerysList +
-                ", locationPoint='" + locationPoint + '\'' +
-                "} " + super.toString();
+            "distance=" + distance +
+            ", subQuery=" + subQuery +
+            ", queryItems=" + queryItems +
+            ", functionQuerysList=" + functionQuerysList +
+            ", queryStr=" + queryStr +
+            ", locationPoint='" + locationPoint + '\'' +
+            "} " + super.toString();
     }
 
     @Override
@@ -80,6 +83,7 @@ public class CommonQuery extends AbstractQuery {
         hash = 37 * hash + this.pageNum;
         hash = 37 * hash + this.pageSize;
         hash = 37 * hash + (this.fls != null ? this.fls.hashCode() : 0);
+        hash = 37 * hash + (this.queryStr != null ? this.queryStr.hashCode() : 0);
         hash = 37 * hash + (this.queryItems != null ? this.queryItems.hashCode() : 0);
         StringBuffer sb = new StringBuffer();
         for (SortItem sortItem : sortItems) {
@@ -106,4 +110,11 @@ public class CommonQuery extends AbstractQuery {
         this.distance = distance;
     }
 
+    public String getQueryStr() {
+        return queryStr;
+    }
+
+    public void setQueryStr(String queryStr) {
+        this.queryStr = queryStr;
+    }
 }

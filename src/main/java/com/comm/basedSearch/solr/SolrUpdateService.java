@@ -17,7 +17,9 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,43 +30,43 @@ import java.util.logging.Logger;
  */
 public class SolrUpdateService implements UpdateService {
 
-    final static ResourceBundle solrProperties = ResourceBundle.getBundle("solr");
+    final static ResourceBundle solrProperties = ResourceBundle.getBundle("basedSearch");
     final static Map<String, CloudSolrServer> serverMap = Maps.newHashMap();
+    protected CloudSolrServer cloudSolrServer = null;
+
 
     /**
      *
      * @throws MalformedURLException
      */
-    public SolrUpdateService() throws MalformedURLException {
+    public SolrUpdateService(Properties settings) throws MalformedURLException {
         super();
         //load solr related properties
-        populateCloudServers();
-    }
-
-    private void populateCloudServers() throws MalformedURLException {
-        String collectNames = solrProperties.getString("solrcloud.collectionNames");
-        String[] collectionNames_ = collectNames.split(",");
-        for (String collectionNames_1 : collectionNames_) {
-            CloudSolrServer cloudSolrServer = null;
-            String zkHost = solrProperties.getString("solrcloud.zkHost");
-            int max_connections = Integer.parseInt(solrProperties.getString("solrcloud.max_connections"));
-            int max_connections_per_host = Integer.parseInt(solrProperties.getString("solrcloud.max_connections_per_host"));
-            int zkConnectTimeout = Integer.parseInt(solrProperties.getString("solrcloud.zkConnectTimeout"));
-            int zkClientTimeout = Integer.parseInt(solrProperties.getString("solrcloud.zkClientTimeout"));
+        try {
+            String zkHost = settings.getProperty("solrcloud.zkHost");
+            int max_connections = Integer.parseInt(settings.getProperty("solrcloud.max_connections"));
+            int max_connections_per_host =
+                Integer.parseInt(settings.getProperty("solrcloud.max_connections_per_host"));
+            int zkConnectTimeout = Integer.parseInt(settings.getProperty("solrcloud.zkConnectTimeout"));
+            int zkClientTimeout = Integer.parseInt(settings.getProperty("solrcloud.zkClientTimeout"));
 
             ModifiableSolrParams params = new ModifiableSolrParams();
             params.set(HttpClientUtil.PROP_MAX_CONNECTIONS, max_connections);
             params.set(HttpClientUtil.PROP_MAX_CONNECTIONS_PER_HOST, max_connections_per_host);
             HttpClient client = HttpClientUtil.createClient(params);
+
             LBHttpSolrServer lbServer = new LBHttpSolrServer(client);
+
             cloudSolrServer = new CloudSolrServer(zkHost, lbServer);
             cloudSolrServer.setZkConnectTimeout(zkConnectTimeout);
             cloudSolrServer.setZkClientTimeout(zkClientTimeout);
-            cloudSolrServer.setDefaultCollection(collectionNames_1);
-            serverMap.put(collectionNames_1, cloudSolrServer);
-        }
+        } catch (Exception e) {
 
+        }
     }
+
+
+
 
     /**
      *
@@ -171,6 +173,14 @@ public class SolrUpdateService implements UpdateService {
         } catch (IOException ex) {
             Logger.getLogger(SolrUpdateService.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override public void bulkUpdate(List<Map<String, String>> updatedMaps) throws Exception {
+
+    }
+
+    @Override public void bulkAdd(List<Map<String, String>> updatedMaps) throws Exception {
+
     }
 
 }
