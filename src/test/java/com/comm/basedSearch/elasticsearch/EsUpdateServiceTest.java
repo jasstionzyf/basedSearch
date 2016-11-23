@@ -153,6 +153,7 @@ public class EsUpdateServiceTest {
     }
     @Test
     public void testBulkUpdate()throws Exception{
+
         List<Map<String, String>> updatedMaps= Lists.newArrayList();
         Map<String, String> updatedMap = Maps.newHashMap();
         //updatedMap.put("nickname", "说好不哭11");
