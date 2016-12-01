@@ -46,7 +46,7 @@
     ```
 
 ### 2.x
-  ```
+  ~~~~
   UpdateService updaeService = new EsUpdateService("http://120.131.7.145:9200/");
   String testId = "11111106";
        Map<String, String> updatedMap = Maps.newHashMap();
@@ -80,7 +80,7 @@
        String registeDate="2012-03-10T09:23:12";
        updatedMap.put("registeDate",registeDate);
        updaeService.add(updatedMap);
-   ```
+   ~~~~
 
   在对elasticsearch操作的时候，无论是update或者是add,map对象都必须以下值：
   index,type
