@@ -10,7 +10,7 @@
 
 ###  elastic的操作
 ### 5.x
-  ```
+  ~~~~
   UpdateService updaeService = new EsUpdateService("127.0.0.1:9300","elastic","changeme","elasticsearch");
         String testId = "11111107";
         Map<String, String> updatedMap = Maps.newHashMap();
@@ -43,7 +43,9 @@
         String registeDate="2012-03-10T09:23:12";
         updatedMap.put("registeDate",registeDate);
         updaeService.add(updatedMap);
-    ```
+
+
+  ~~~~
 
 ### 2.x
   ~~~~
