@@ -9,54 +9,6 @@
     <packaging>jar</packaging>
     <version>0.0.3</version>
     <description>upgrade elastic version to 5.X also re-implement es related service directly use elastic api instand of jest</description>
-    <distributionManagement>
-        <!--<snapshotRepository>-->
-            <!--<id>Snapshots</id>-->
-            <!--<name>Snapshots</name>-->
-            <!--<url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/snapshots/</url>-->
-        <!--</snapshotRepository>-->
-        <!--<repository>-->
-            <!--<id>Releases</id>-->
-            <!--<name>Releases</name>-->
-            <!--<url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/releases/</url>-->
-        <!--</repository>-->
-    </distributionManagement>
-    <repositories>
-        <repository>
-            <id>Snapshots</id>
-            <name>Snapshots</name>
-            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/snapshots/</url>
-        </repository>
-
-        <repository>
-            <id>Releases</id>
-            <name>Releases</name>
-            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/releases/</url>
-        </repository>
-
-        <repository>
-            <id>spring-snapshots</id>
-            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/spring-snapshots/</url>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-
-        <repository>
-            <id>spring-milestones</id>
-            <url>http://zrpc5.wuyu.pub:8081/nexus/content/repositories/spring-milestones/</url>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>elasticsearch-releases</id>
-            <url>https://artifacts.elastic.co/maven</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-
-    </repositories>
     <properties>
         <jedis.version>2.6.2</jedis.version>
 
