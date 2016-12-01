@@ -7,7 +7,8 @@
     <groupId>com.comm</groupId>
     <artifactId>basedSearch</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
+    <description>upgrade elastic version to 5.X also re-implement es related service directly use elastic api instand of jest</description>
     <distributionManagement>
         <!--<snapshotRepository>-->
             <!--<id>Snapshots</id>-->
