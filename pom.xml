@@ -7,7 +7,7 @@
     <groupId>com.comm</groupId>
     <artifactId>basedSearch</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.3</version>
+    <version>2.0</version>
     <description>upgrade elastic version to 5.X also re-implement es related service directly use elastic api instand of jest</description>
     <properties>
         <jedis.version>2.6.2</jedis.version>
