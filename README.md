@@ -2,14 +2,14 @@
 ## 项目介绍
 为简化用户对elasticsearch以及solr的操作，此项目对底层的各种操作进行了封装， 为用户提供统一的简洁的操作接口。
 ## 版本描述
-- tag/5.0
+- 2.0
   elasticsearch版本为：5.x
-- tag/2.0
+- 1.0
   elasticsearch版本为2.x
 
 
 ###  elastic的操作
-### 5.x
+### 2.0
   ~~~~
   UpdateService updaeService = new EsUpdateService("127.0.0.1:9300","elastic","changeme","elasticsearch");
         String testId = "11111107";
@@ -47,7 +47,7 @@
 
   ~~~~
 
-### 2.x
+### 1.0
   ~~~~
   UpdateService updaeService = new EsUpdateService("http://120.131.7.145:9200/");
   String testId = "11111106";
