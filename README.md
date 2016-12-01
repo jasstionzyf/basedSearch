@@ -9,7 +9,7 @@
 
 
 ###  elastic的操作
-- 5.x
+* 5.x
   ```
   UpdateService updaeService = new EsUpdateService("127.0.0.1:9300","elastic","changeme","elasticsearch");
         String testId = "11111107";
@@ -44,7 +44,7 @@
         updatedMap.put("registeDate",registeDate);
         updaeService.add(updatedMap);
         ```
-- 2.x
+* 2.x
   ```
   UpdateService updaeService = new EsUpdateService("http://120.131.7.145:9200/");
   String testId = "11111106";
