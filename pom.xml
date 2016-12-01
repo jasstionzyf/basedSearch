@@ -7,7 +7,7 @@
     <groupId>com.comm</groupId>
     <artifactId>basedSearch</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.2</version>
+    <version>1.0</version>
     <properties>
         <jedis.version>2.6.2</jedis.version>
 
