@@ -58,8 +58,8 @@ public class EsUpdateServiceTest {
 
         updatedMap.put("type", "user");
         updatedMap.put("index", "baihe_user");
-        UpdateService updaeService = new EsUpdateService();
-        //UpdateService updaeService = new EsUpdateService("http://120.131.7.145:9200/");
+        //UpdateService updaeService = new EsUpdateService();
+        UpdateService updaeService = new EsUpdateService("http://120.131.7.145:9200/");
         String registeDate="2012-03-10T09:23:12";
         updatedMap.put("registeDate",registeDate);
 
@@ -90,7 +90,7 @@ public class EsUpdateServiceTest {
 
         updatedMap.put("type", "user");
         updatedMap.put("index", "baihe_user");
-        UpdateService updaeService = new EsUpdateService();
+        UpdateService updaeService = null;//new EsUpdateService();
         String registeDate="2012-03-10T09:23:12";
         updatedMap.put("registeDate",registeDate);
 
@@ -129,7 +129,7 @@ public class EsUpdateServiceTest {
         updatedMap.put("id", testId);
         updatedMap.put("type", "user");
         updatedMap.put("index", "baihe_user");
-        UpdateService updaeService = new EsUpdateService();
+        UpdateService updaeService =null;// new EsUpdateService();
 
 
 

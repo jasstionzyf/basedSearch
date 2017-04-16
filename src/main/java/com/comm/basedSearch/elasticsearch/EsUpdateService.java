@@ -32,7 +32,7 @@ import java.util.logging.Logger;
  */
 public class EsUpdateService implements UpdateService {
 
-    final static ResourceBundle solrProperties = ResourceBundle.getBundle("elasticSearch");
+//    final static ResourceBundle solrProperties = ResourceBundle.getBundle("elasticSearch");
     protected final static org.slf4j.Logger mLog = LoggerFactory.getLogger(EsUpdateService.class);
 
 
@@ -51,7 +51,7 @@ public class EsUpdateService implements UpdateService {
 
             HttpClientConfig clientConfig = new HttpClientConfig.Builder(servers).multiThreaded(true)
                     .connTimeout(6*1000)
-                    .readTimeout(6*1000)
+                    .readTimeout(100*1000)
                     .defaultMaxTotalConnectionPerRoute(1000)
                     .build();
 
@@ -62,14 +62,14 @@ public class EsUpdateService implements UpdateService {
 
     }
 
-    /**
-     *
-     */
-    public EsUpdateService() {
-        String elasticSearchUrl = solrProperties.getString("elasticSearchHosts");
-        populateClient(elasticSearchUrl);
-
-    }
+//    /**
+//     *
+//     */
+//    public EsUpdateService() {
+//        String elasticSearchUrl = solrProperties.getString("elasticSearchHosts");
+//        populateClient(elasticSearchUrl);
+//
+//    }
 
     public EsUpdateService(String elasticSearchUrl){
            populateClient(elasticSearchUrl);
@@ -241,7 +241,7 @@ public class EsUpdateService implements UpdateService {
     }
     private void processJestResult(JestResult jestResult){
         if(!jestResult.isSucceeded()){
-            throw new RuntimeException("数据操作出错，错误信息："+jestResult.getErrorMessage()+"");
+            throw new RuntimeException("数据操作出错，错误信息："+jestResult.getJsonString()+"");
 
         }
     }
