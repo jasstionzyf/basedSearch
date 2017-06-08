@@ -102,7 +102,7 @@ public class EsUpdateService implements UpdateService {
             String type = updateMap.get("type");
             String index = updateMap.get("index");
             String routingField=updateMap.get("routingField");
-            updatedMaps.remove("routingField");
+            updateMap.remove("routingField");
 
            if(id==null || type==null || index==null){
                continue;
@@ -139,9 +139,11 @@ public class EsUpdateService implements UpdateService {
 
 
     /**
+     *  recommended to use batchUpdated
      * used to batch add documents,do not care whether the input document has id field
      * @param updatedMaps
      */
+    @Deprecated
     public void bulkAdd(List<Map<String, String>> updatedMaps)throws Exception{
         Bulk.Builder builder = new Bulk.Builder();
         List<Index> updateList =Lists.newArrayList();
@@ -222,6 +224,8 @@ public class EsUpdateService implements UpdateService {
         String id = (String) updateMap.get("id");
         String type = updateMap.get("type");
         String index = updateMap.get("index");
+        String routingField=updateMap.get("routingField");
+        updateMap.remove("routingField");
 
        //
 //        updateMap.remove("index");
@@ -232,7 +236,7 @@ public class EsUpdateService implements UpdateService {
             indexAction=new Index.Builder(updateMap).index(index).type(type).id(id).build();
         }
         else{
-            indexAction= new Index.Builder(updateMap).index(index).type(type).build();
+            indexAction= new Index.Builder(updateMap).index(index).type(type).setParameter("routing",updateMap.get(routingField)).build();
         }
 
         try {
