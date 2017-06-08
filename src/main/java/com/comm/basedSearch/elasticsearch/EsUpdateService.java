@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,6 +92,8 @@ public class EsUpdateService implements UpdateService {
      * once failure throw exception must to be processed by caller
      */
     public void bulkUpdate(List<Map<String, String>> updatedMaps)throws Exception{
+
+
         Bulk.Builder builder = new Bulk.Builder();
         List<Update> updateList =Lists.newArrayList();
 
@@ -100,6 +101,9 @@ public class EsUpdateService implements UpdateService {
             String id = (String) updateMap.get("id");
             String type = updateMap.get("type");
             String index = updateMap.get("index");
+            String routingField=updateMap.get("routingField");
+            updatedMaps.remove("routingField");
+
            if(id==null || type==null || index==null){
                continue;
 
@@ -110,7 +114,7 @@ public class EsUpdateService implements UpdateService {
             Map<String,Object> finalUpdatedMap=Maps.newHashMap();
             finalUpdatedMap.put("doc",updateMap);
             finalUpdatedMap.put("doc_as_upsert","true");
-            Update update = new Update.Builder(finalUpdatedMap).index(index).type(type).id(id).build();
+            Update update = new Update.Builder(finalUpdatedMap).index(index).type(type).id(id).setParameter("routing",updateMap.get(routingField)).build();
             updateList.add(update);
 
         }
@@ -323,51 +327,49 @@ public class EsUpdateService implements UpdateService {
     public static void main(String[] args) throws Exception {
 
 
+        //test route function
+        EsUpdateService esUpdateService=new EsUpdateService("http://127.0.0.1:9201");
+        List<Map<String, String>> updatedMaps= Lists.newArrayList();
+        Map<String, String> updatedMap = Maps.newHashMap();
+        //updatedMap.put("nickname", "说好不哭11");
+        updatedMap.put("index","vcg_image");
 
 
 
-////Object to JSON in String
-//        JSONObject jsonObject=null;
-//        String jsonInString = mapper.writeValueAsString(updatedMap);
-//        System.out.print(jsonInString);
-        String elasticSearchUrl="http://172.16.9.42:9200,http://172.16.9.42:9201,http://172.16.9.42:9202,http://172.16.9.43:9200,http://172.16.9.43:9201,http://172.16.9.43:9202,http://172.16.9.44:9200,http://172.16.9.44:9201,http://172.16.9.44:9202,http://172.16.9.45:9200,http://172.16.9.45:9201,http://172.16.9.45:9202,http://172.16.9.46:9200,http://172.16.9.46:9201,http://172.16.9.46:9202";
-        JestClient client = null;
-        Set<String> servers= Sets.newHashSet();
-        String[] servers_str=elasticSearchUrl.split(",");
-        for (String server_str:servers_str){
-            servers.add(server_str);
-        }
 
+        updatedMap.put("type", "image");
+        updatedMap.put("groupId", "13987");
+        updatedMap.put("id","1111111111013");
+        updatedMap.put("routingField","groupId");
 
-        HttpClientConfig clientConfig = new HttpClientConfig.Builder(servers).multiThreaded(true)
-                .connTimeout(6*1000)
-                .readTimeout(6*1000)
-                .defaultMaxTotalConnectionPerRoute(1000)
-                .defaultCredentials("zhaoyufei","zhaoyufei")
-                .build();
-
-        JestClientFactory factory = new JestClientFactory();
-        factory.setHttpClientConfig(clientConfig);
-        client = factory.getObject();
-
-        DeleteByQuery deleteAllUserJohn = new DeleteByQuery.Builder("\"query\" : {\n" +
-                "        \n" +
-                "    \"range\" : {\n" +
-                "        \"accept_date\" : {\n" +
-                "            \"lt\" :  \"now-7d/d\",\n" +
-                "            \"gte\": \"now-8d/d\"\n" +
-                "        }\n" +
-                "    \n" +
-                "}\n" +
-                "    }")
-                .addIndex("baihe")
-                .addType("ha")
-                .build();
-        JestResult jr=client.execute(deleteAllUserJohn);
-       System.out.print(jr.getErrorMessage());
+        Map<String, String> updatedMap1 = Maps.newHashMap();
+        updatedMap1.put("id","11111111168191113");
+        updatedMap1.put("index","vcg_image");
+        updatedMap1.put("routingField","groupId");
 
 
 
+
+        updatedMap1.put("type", "image");
+        updatedMap1.put("groupId", "2009813");
+
+        Map<String, String> updatedMap2 = Maps.newHashMap();
+        updatedMap2.put("id","1111111117822313");
+        updatedMap2.put("index","vcg_image");
+
+        updatedMap2.put("routingField","groupId");
+
+
+
+        updatedMap2.put("type", "image");
+        updatedMap2.put("groupId", "2000");
+        updatedMaps.add(updatedMap);
+        updatedMaps.add(updatedMap1);
+        updatedMaps.add(updatedMap2);
+
+//        esUpdateService.update(updatedMap);
+        //  esUpdateService.bulkAdd(updatedMaps);
+         esUpdateService.bulkUpdate(updatedMaps);
 
 
     }
